@@ -146,8 +146,8 @@
 
   <div class="hero__marquee" aria-hidden="true">
     <div class="marquee__track">
-      <span>Capacitor · iOS</span><span>·</span><span>Android Studio · Gradle</span><span>·</span><span>Tauri · Rust</span><span>·</span><span>electron-builder</span><span>·</span><span>appimagetool</span><span>·</span><span>notarization · codesign</span><span>·</span><span>PWA shell</span><span>·</span><span>jsDelivr CDN</span><span>·</span><span>ghproxy mirror</span><span>·</span>
-      <span>Capacitor · iOS</span><span>·</span><span>Android Studio · Gradle</span><span>·</span><span>Tauri · Rust</span><span>·</span><span>electron-builder</span><span>·</span><span>appimagetool</span><span>·</span><span>notarization · codesign</span><span>·</span><span>PWA shell</span><span>·</span><span>jsDelivr CDN</span><span>·</span><span>ghproxy mirror</span><span>·</span>
+      <span>Tauri2 · Rust</span><span>·</span><span>tauri-action</span><span>·</span><span>WebView2 · WKWebView</span><span>·</span><span>cargo tauri android</span><span>·</span><span>cargo tauri ios</span><span>·</span><span>xcodebuild</span><span>·</span><span>NSIS · dmg · AppImage</span><span>·</span><span>&lt;5MB 产物</span><span>·</span><span>jsDelivr CDN</span><span>·</span><span>ghproxy mirror</span><span>·</span>
+      <span>Tauri2 · Rust</span><span>·</span><span>tauri-action</span><span>·</span><span>WebView2 · WKWebView</span><span>·</span><span>cargo tauri android</span><span>·</span><span>cargo tauri ios</span><span>·</span><span>xcodebuild</span><span>·</span><span>NSIS · dmg · AppImage</span><span>·</span><span>&lt;5MB 产物</span><span>·</span><span>jsDelivr CDN</span><span>·</span><span>ghproxy mirror</span><span>·</span>
     </div>
   </div>
 </section>
@@ -387,8 +387,8 @@
       <div class="field">
         <label class="field__label" for="shellSel">底层壳引擎</label>
         <div class="seg" id="shellSel">
-          <button class="seg__btn is-active" data-val="capacitor" data-shell="capacitor">Capacitor</button>
-          <button class="seg__btn" data-val="tauri" data-shell="tauri">Tauri</button>
+          <button class="seg__btn is-active" data-val="tauri" data-shell="tauri">Tauri2</button>
+          <button class="seg__btn" data-val="capacitor" data-shell="capacitor">Capacitor</button>
           <button class="seg__btn" data-val="pwa" data-shell="pwa">PWA</button>
         </div>
       </div>
@@ -461,7 +461,7 @@
     <article class="plat" data-p="ios">
       <div class="plat__top"><span class="plat__ico">iOS</span><span class="plat__ext mono">.ipa</span></div>
       <h3 class="plat__title">Apple iOS / iPadOS</h3>
-      <p class="plat__desc">基于 Capacitor + Xcode 云构建，支持 TestFlight 分发与 Ad-Hoc 签名。</p>
+      <p class="plat__desc">基于 Tauri2 mobile + Xcode 云构建，输出未签名 .ipa，可自行签名后安装。</p>
       <ul class="plat__tags mono"><li>swift</li><li>webkit</li><li>testflight</li></ul>
     </article>
     <article class="plat" data-p="android">
@@ -473,7 +473,7 @@
     <article class="plat" data-p="windows">
       <div class="plat__top"><span class="plat__ico">win</span><span class="plat__ext mono">.msi</span></div>
       <h3 class="plat__title">Windows</h3>
-      <p class="plat__desc">Tauri / Electron 双引擎可选，输出 MSI 与 NSIS 安装包，含自动更新。</p>
+      <p class="plat__desc">Tauri2 + Rust 编译，输出 NSIS 安装包，产物体积仅约 5MB，含自动更新。</p>
       <ul class="plat__tags mono"><li>rust</li><li>msi</li><li>winget</li></ul>
     </article>
     <article class="plat" data-p="macos">
