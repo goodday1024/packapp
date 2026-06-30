@@ -198,6 +198,8 @@
     <span class="sb-item">targets: <b id="sbTargets">5/5</b></span>
     <span class="sb-spacer"></span>
     <span class="sb-item sb-status" id="sbStatus">未连接 GitHub</span>
+    <a class="sb-link mono" id="sbRepoLink" href="#" target="_blank" rel="noopener" hidden>仓库 ↗</a>
+    <button class="sb-disconnect" id="disconnectBtn" hidden>断开</button>
   </div>
 
   <div class="studio__grid">
@@ -659,36 +661,61 @@
   </div>
 </footer>
 
-<!-- ===== Login modal ===== -->
+<!-- ===== Login modal (PAT) ===== -->
 <div class="modal" id="loginModal" aria-hidden="true">
   <div class="modal__backdrop" data-close></div>
   <div class="modal__card" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
     <button class="modal__close" data-close aria-label="关闭">×</button>
     <div class="modal__head">
-      <span class="modal__eyebrow mono">OAUTH · GITHUB</span>
-      <h3 class="modal__title" id="loginTitle">连接你的 GitHub</h3>
-      <p class="modal__sub">FORGE 将在你账号下创建仓库并写入 Action 工作流。</p>
+      <span class="modal__eyebrow mono">PAT · GITHUB TOKEN</span>
+      <h3 class="modal__title" id="loginTitle">使用密钥连接 GitHub</h3>
+      <p class="modal__sub">输入你的 GitHub Personal Access Token，FORGE 将调用 GitHub API 验证身份、创建仓库并写入 Action 工作流。</p>
+    </div>
+
+    <div class="token-box">
+      <div class="field" style="margin-bottom:14px">
+        <label class="field__label" for="ghToken">Personal Access Token</label>
+        <div class="token-input-row">
+          <input class="input input--mono" id="ghToken" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxx" autocomplete="off" spellcheck="false" />
+          <button class="token-toggle" id="tokenToggle" type="button" aria-label="显示/隐藏密钥">
+            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M12 4.5C7 4.5 2.7 7.6 1 12c1.7 4.4 6 7.5 11 7.5s9.3-3.1 11-7.5C21.3 7.6 17 4.5 12 4.5zm0 12.5a5 5 0 110-10 5 5 0 010 10zm0-8a3 3 0 100 6 3 3 0 000-6z"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="field" style="margin-bottom:14px">
+        <label class="field__label" for="repoName">仓库名称</label>
+        <input class="input input--mono" id="repoName" type="text" value="forge-app" spellcheck="false" />
+        <span class="field__hint mono" id="repoHint">将创建于 &lt;你的用户名&gt;/forge-app</span>
+      </div>
+
+      <div class="token-help">
+        <span class="mono">所需权限: <b>repo</b> · <b>workflow</b></span>
+        <a class="token-link mono" href="https://github.com/settings/tokens/new?scopes=repo,workflow&description=FORGE%20%E9%94%BB%E9%80%A0%E5%B7%A5%E5%9D%8A" target="_blank" rel="noopener">→ 前往创建 Token ↗</a>
+      </div>
+      <div class="token-error mono" id="tokenError" role="alert" hidden></div>
     </div>
 
     <ul class="scopes mono">
-      <li><span class="scope-dot"></span> 读取你的用户资料</li>
-      <li><span class="scope-dot"></span> 创建与管理仓库</li>
-      <li><span class="scope-dot"></span> 写入 workflow 与 secrets</li>
+      <li><span class="scope-dot"></span> 读取用户资料 (GET /user)</li>
+      <li><span class="scope-dot"></span> 创建仓库 (POST /user/repos)</li>
+      <li><span class="scope-dot"></span> 写入文件与 workflow (PUT /contents)</li>
+      <li><span class="scope-dot"></span> 触发构建 (push 触发 + 轮询 runs)</li>
     </ul>
 
     <div class="login-flow" id="loginFlow">
-      <div class="lf-step" data-step="0"><span class="lf-num">01</span><span class="lf-name">跳转 GitHub 授权</span><span class="lf-state mono">待开始</span></div>
-      <div class="lf-step" data-step="1"><span class="lf-num">02</span><span class="lf-name">创建仓库 forge-app/my-app</span><span class="lf-state mono">—</span></div>
-      <div class="lf-step" data-step="2"><span class="lf-num">03</span><span class="lf-name">写入 forge.yml 与 secrets</span><span class="lf-state mono">—</span></div>
-      <div class="lf-step" data-step="3"><span class="lf-num">04</span><span class="lf-name">注入镜像加速配置</span><span class="lf-state mono">—</span></div>
+      <div class="lf-step" data-step="0"><span class="lf-num">01</span><span class="lf-name">验证 Token · 读取用户</span><span class="lf-state mono">待开始</span></div>
+      <div class="lf-step" data-step="1"><span class="lf-num">02</span><span class="lf-name">创建仓库</span><span class="lf-state mono">—</span></div>
+      <div class="lf-step" data-step="2"><span class="lf-num">03</span><span class="lf-name">写入 forge.yml 工作流</span><span class="lf-state mono">—</span></div>
+      <div class="lf-step" data-step="3"><span class="lf-num">04</span><span class="lf-name">写入 forge.config.json</span><span class="lf-state mono">—</span></div>
       <div class="lf-step" data-step="4"><span class="lf-num">05</span><span class="lf-name">完成，进入工坊</span><span class="lf-state mono">—</span></div>
     </div>
 
     <button class="btn btn--github btn--block" id="loginStart">
       <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 .5C5.7.5.5 5.7.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.2.8-.5v-1.7c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.7 1.3 3.4 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.3c0 .3.2.6.8.5 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.7 18.3.5 12 .5z"/></svg>
-      <span>授权并开始</span>
+      <span>验证并连接</span>
     </button>
-    <p class="modal__fine mono">演示模式：不会真实访问你的 GitHub 账号</p>
+    <p class="modal__fine mono">密钥仅保存在当前标签页会话 · 关闭标签即清除 · 不会上传到任何第三方服务器</p>
   </div>
 </div>
 
