@@ -200,6 +200,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Generate build matrix from forge.config.json
         id: gen
+        shell: bash
         run: |
           MATRIX=$(jq -c '{include: [ .targets[] | {
             target: .,
@@ -217,6 +218,9 @@ jobs:
   forge:
     needs: prepare
     runs-on: \${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
     strategy:
       fail-fast: false
       matrix: \${{ fromJson(needs.prepare.outputs.matrix) }}
@@ -228,18 +232,23 @@ jobs:
 
       - name: Mirror acceleration (CN)
         if: \${{ vars.FORGE_REGION == 'cn' }}
+        shell: bash
         run: |
           git config --global url."https://gitclone.com/github.com/".insteadOf "https://github.com/"
           echo "已启用 gitclone 镜像加速"
 
       - name: Read FORGE config
+        shell: bash
         run: |
-          echo "## FORGE config" >> "$GITHUB_STEP_SUMMARY"
-          echo "\`\`\`json" >> "$GITHUB_STEP_SUMMARY"
-          cat forge.config.json >> "$GITHUB_STEP_SUMMARY"
-          echo "\`\`\`" >> "$GITHUB_STEP_SUMMARY"
+          {
+            echo "## FORGE config"
+            echo '\`\`\`json'
+            cat forge.config.json
+            echo '\`\`\`'
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Forge build (\${{ matrix.target }})
+        shell: bash
         run: |
           echo "Forging \${{ matrix.target }} artifact (.\${{ matrix.ext }}) for \${{ github.repository }}"
           echo "在这里接入 Capacitor / Tauri / electron-builder 等真实构建链"
