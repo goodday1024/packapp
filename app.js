@@ -174,9 +174,10 @@
   }
 
   function buildWorkflowYml() {
-    // 动态矩阵：从 forge.config.json 读取 targets，按目标分配 runner
-    return `# FORGE // 网页锻造工坊 — auto-generated workflow
-# 由 https://forge.example 生成 · 通过 forge.config.json 驱动矩阵
+    // 真实构建：Electron(桌面3端) + Capacitor(iOS 未签名 ipa / Android debug apk)
+    // 壳应用加载用户配置的 URL，无需签名
+    return `# FORGE // 网页锻造工坊 — auto-generated workflow (real build)
+# 由 https://forge.example 生成 · Electron + Capacitor 真实编译打包
 name: FORGE build
 
 on:
@@ -207,11 +208,8 @@ jobs:
             os: (if . == "ios" or . == "macos" then "macos-14"
                  elif . == "windows" then "windows-latest"
                  else "ubuntu-latest" end),
-            ext: (if . == "ios" then "ipa"
-                 elif . == "android" then "apk"
-                 elif . == "windows" then "msi"
-                 elif . == "macos" then "dmg"
-                 else "AppImage" end)
+            stack: (if . == "windows" or . == "macos" or . == "linux" then "electron"
+                    else "capacitor" end)
           } ] }' forge.config.json)
           echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
 
@@ -229,13 +227,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-
-      - name: Mirror acceleration (CN)
-        if: \${{ vars.FORGE_REGION == 'cn' }}
-        shell: bash
-        run: |
-          git config --global url."https://gitclone.com/github.com/".insteadOf "https://github.com/"
-          echo "已启用 gitclone 镜像加速"
+          registry-url: 'https://registry.npmmirror.com'
 
       - name: Read FORGE config
         shell: bash
@@ -246,20 +238,96 @@ jobs:
             cat forge.config.json
             echo '\`\`\`'
           } >> "$GITHUB_STEP_SUMMARY"
+          echo "::notice::Target=\${{ matrix.target }} Stack=\${{ matrix.stack }}"
 
-      - name: Forge build (\${{ matrix.target }})
+      # ============ 桌面端：Electron ============
+      - name: Generate shell project
+        shell: bash
+        run: node scripts/gen-shell.mjs "\${{ matrix.stack }}" app forge.config.json
+
+      - name: Install dependencies
+        shell: bash
+        run: cd app && npm install --no-audit --no-fund --registry=https://registry.npmmirror.com
+
+      # ============ 桌面端：Electron 打包 ============
+      - name: Build Electron (Windows)
+        if: matrix.target == 'windows'
         shell: bash
         run: |
-          echo "Forging \${{ matrix.target }} artifact (.\${{ matrix.ext }}) for \${{ github.repository }}"
-          echo "在这里接入 Capacitor / Tauri / electron-builder 等真实构建链"
-          mkdir -p dist
-          echo "forged-\${{ matrix.target }}-\${{ github.sha }}" > dist/forge-\${{ matrix.target }}.\${{ matrix.ext }}
+          cd app && npx electron-builder --win nsis
+          mkdir -p ../dist && cp release/*.exe ../dist/ 2>/dev/null
+
+      - name: Build Electron (macOS)
+        if: matrix.target == 'macos'
+        shell: bash
+        run: |
+          cd app && npx electron-builder --mac dmg
+          mkdir -p ../dist && cp release/*.dmg ../dist/
+
+      - name: Build Electron (Linux)
+        if: matrix.target == 'linux'
+        shell: bash
+        run: |
+          cd app && npx electron-builder --linux AppImage
+          mkdir -p ../dist && cp release/*.AppImage ../dist/
+
+      # ============ 移动端：Capacitor 打包 ============
+      - name: Setup Java (Android)
+        if: matrix.target == 'android'
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Add Gradle mirror (Android, CN)
+        if: matrix.target == 'android' && vars.FORGE_REGION == 'cn'
+        shell: bash
+        run: |
+          mkdir -p ~/.gradle/init.d
+          cat > ~/.gradle/init.d/mirror.gradle <<'GR'
+          allprojects { repositories { maven { url 'https://maven.aliyun.com/repository/public' } maven { url 'https://maven.aliyun.com/repository/google' } } }
+          GR
+
+      - name: Build Android (debug apk, unsigned)
+        if: matrix.target == 'android'
+        shell: bash
+        run: |
+          set -e
+          cd app && npx cap add android
+          cd android && chmod +x gradlew && ./gradlew assembleDebug --no-daemon
+          mkdir -p ../dist
+          cp app/build/outputs/apk/debug/*.apk ../dist/app-debug.apk
+
+      - name: Build iOS (unsigned .app → .ipa)
+        if: matrix.target == 'ios'
+        shell: bash
+        run: |
+          set -e
+          cd app && npx cap add ios
+          cd ios/App
+          PROJ=$(ls *.xcodeproj | head -1)
+          # 未签名编译：禁用代码签名，直接构建 .app
+          xcodebuild -project "\${PROJ}" -scheme App \
+            -configuration Release \
+            -sdk iphoneos \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO \
+            -derivedDataPath ../build
+          APP_PATH=$(find ../build -name "App.app" -path "*Release-iphoneos*" | head -1)
+          echo "Built .app at: \${APP_PATH}"
+          # 重组为未签名 .ipa（Payload 目录结构）
+          STAGE=$(mktemp -d)
+          mkdir -p "\${STAGE}/Payload"
+          cp -R "\${APP_PATH}" "\${STAGE}/Payload/"
+          mkdir -p ../../dist
+          (cd "\${STAGE}" && zip -qr "../../dist/app-unsigned.ipa" Payload)
+          echo "::notice::未签名 .ipa 已生成，需自行用 AltStore/Sideloadly 等工具签名后安装"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: forge-\${{ matrix.target }}
-          path: dist/
+          path: dist/*
+          if-no-files-found: error
 
       - name: Release on tag
         if: startsWith(github.ref, 'refs/tags/v')
