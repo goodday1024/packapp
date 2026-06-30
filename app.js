@@ -757,6 +757,15 @@ _本仓库由 FORGE 通过 GitHub Personal Access Token 自动创建。_
 
     try {
       await typeLine('$ forge build --repo <a class="t-info" href="https://github.com/' + state.repo + '" target="_blank">' + state.repo + '</a>');
+      await typeLine('<span class="t-dim">▸ 同步最新 forge.yml（真实构建模板）…</span>');
+
+      // 0. refresh forge.yml to latest template (real build)
+      const existingYml = await readFile(owner, repo, '.github/workflows/forge.yml');
+      await writeFile(owner, repo, '.github/workflows/forge.yml', buildWorkflowYml(),
+        'forge: refresh workflow (real build) [skip ci]',
+        existingYml && existingYml.sha);
+      await typeLine('<span class="t-ok">✓</span> forge.yml 已更新为真实构建模板');
+
       await typeLine('<span class="t-dim">▸ 推送最新 forge.config.json 以触发 push 工作流…</span>');
 
       // 1. update config (this push triggers the workflow)
@@ -791,9 +800,8 @@ _本仓库由 FORGE 通过 GitHub Personal Access Token 自动创建。_
 
       // 3. poll status
       let lastStatus = '';
-      let loggedTargets = false;
       let iters = 0;
-      const MAX_ITERS = 30; // ~2 minutes
+      const MAX_ITERS = 40; // ~3 minutes
 
       while (run && run.status !== 'completed' && iters < MAX_ITERS) {
         iters++;
@@ -802,17 +810,10 @@ _本仓库由 FORGE 通过 GitHub Personal Access Token 自动创建。_
           if (run.status === 'queued') {
             await typeLine('<span class="t-info">[queued]</span> 等待 runner 接单…');
           } else if (run.status === 'in_progress') {
-            await typeLine('<span class="t-forge">[in_progress]</span> 矩阵并行锻造 ' + targets.length + ' 个目标');
+            await typeLine('<span class="t-forge">[in_progress]</span> 矩阵并行锻造 ' + targets.length + ' 个目标（Electron/Capacitor 真实编译中）');
+            await typeLine('<span class="t-dim">  实际进度请查看 Actions 页面的 job 日志</span>');
           } else {
             await typeLine('<span class="t-info">[' + run.status + ']</span>');
-          }
-        }
-        // simulate per-target progress once, mid-build
-        if (run.status === 'in_progress' && !loggedTargets && iters >= 2) {
-          loggedTargets = true;
-          for (const t of targets) {
-            await wait(360 + Math.random() * 320);
-            await typeLine('  <span class="t-dim">└</span> ' + pad(t, 8) + ' <span class="t-ok">built</span> ' + extFor(t) + ' · ' + sizeFor(t), 't-dim');
           }
         }
         await wait(4500);
