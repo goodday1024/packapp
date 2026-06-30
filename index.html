@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>FORGE — 网页锻造工坊 · GitHub Action 多端打包</title>
+<meta name="description" content="基于 GitHub Action，将任意网页一键锻造为 iOS / Android / Windows / macOS / Linux 原生应用。一键 GitHub 登录、自动建仓、全球加速。" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<!-- ===== Atmosphere layers ===== -->
+<div class="grid-bg" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+<div class="scanline" aria-hidden="true"></div>
+<div class="vignette" aria-hidden="true"></div>
+
+<!-- ===== Top registration bar ===== -->
+<div class="reg-bar">
+  <span class="reg-bar__item">FORGE//OS</span>
+  <span class="reg-bar__sep">·</span>
+  <span class="reg-bar__item">v2.6.0-stable</span>
+  <span class="reg-bar__sep">·</span>
+  <span class="reg-bar__item">build-matrix: 5 platforms</span>
+  <span class="reg-bar__spacer"></span>
+  <span class="reg-bar__item reg-bar__item--live"><i class="dot"></i> GitHub Actions · runner pool online</span>
+</div>
+
+<!-- ===== Site nav ===== -->
+<header class="nav" id="nav">
+  <a class="nav__brand" href="#top" aria-label="FORGE 首页">
+    <span class="brand-mark" aria-hidden="true">
+      <svg viewBox="0 0 32 32" width="28" height="28"><path d="M4 6h11l9 20h-6l-2.2-5H8.6L7 26H1L4 6zm6.2 4L8 16h6l-1.8-6h-2z" fill="currentColor"/><path d="M22 6h6v20h-6z" fill="currentColor" opacity=".35"/></svg>
+    </span>
+    <span class="brand-text">FORGE</span>
+    <span class="brand-tag mono">// 锻造工坊</span>
+  </a>
+
+  <nav class="nav__links" aria-label="主导航">
+    <a href="#studio">工坊</a>
+    <a href="#platforms">多端</a>
+    <a href="#speed">加速</a>
+    <a href="#pipeline">流水线</a>
+    <a href="#faq">FAQ</a>
+  </nav>
+
+  <div class="nav__cta">
+    <a class="link-ghost mono" href="https://github.com" target="_blank" rel="noopener">⌘ 文档</a>
+    <button class="btn btn--github" id="ghLoginBtn">
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 .5C5.7.5.5 5.7.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.2.8-.5v-1.7c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.7 1.3 3.4 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.3c0 .3.2.6.8.5 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.7 18.3.5 12 .5z"/></svg>
+      <span>使用 GitHub 登录</span>
+    </button>
+    <div class="nav__user" id="navUser" hidden>
+      <img id="userAvatar" alt="" />
+      <span class="mono" id="userName">—</span>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+
+<!-- ===== HERO ===== -->
+<section class="hero">
+  <div class="hero__coord mono">N 31°14′ · E 121°28′ · ZONE-FORGE · LAYER 01</div>
+
+  <div class="hero__grid">
+    <div class="hero__copy">
+      <div class="hero__eyebrow mono"><span class="eyebrow-line"></span> GITHUB ACTION · MULTI-PLATFORM FORGE</div>
+      <h1 class="hero__title">
+        把任意网页<br/>
+        <span class="title-accent">锻造</span>成<span class="title-stamp">原生应用</span>
+      </h1>
+      <p class="hero__lede">
+        粘贴一个 URL，FORGE 会自动在你的 GitHub 上建仓、写入 Action 工作流，
+        并在云端一次性锻造出 <strong>iOS · Android · Windows · macOS · Linux</strong> 五端安装包。
+      </p>
+
+      <ul class="hero__specs mono">
+        <li><b>01</b> 一键 GitHub 登录，自动建仓 + 写入 workflow</li>
+        <li><b>02</b> 可视化配置：图标 / 窗口 / 权限 / 离线 / 更新通道</li>
+        <li><b>03</b> 全球加速：raw / release / clone 镜像与 CDN 分发</li>
+      </ul>
+
+      <div class="hero__actions">
+        <button class="btn btn--primary" id="heroLoginBtn">
+          <span class="btn__label">立即开始锻造</span>
+          <span class="btn__arrow">→</span>
+        </button>
+        <a class="btn btn--ghost" href="#studio">查看工坊演示</a>
+      </div>
+
+      <div class="hero__trust mono">
+        <span>已锻造 <b>12,847</b> 个应用</span>
+        <span class="t-sep"></span>
+        <span>累计构建 <b>318k</b> 次</span>
+        <span class="t-sep"></span>
+        <span>开源 · MIT</span>
+      </div>
+    </div>
+
+    <!-- Forge diagram -->
+    <div class="hero__viz" aria-hidden="true">
+      <div class="forge-diagram">
+        <div class="fd-corner fd-corner--tl"></div>
+        <div class="fd-corner fd-corner--tr"></div>
+        <div class="fd-corner fd-corner--bl"></div>
+        <div class="fd-corner fd-corner--br"></div>
+
+        <div class="fd-input">
+          <span class="fd-label mono">INPUT · URL</span>
+          <div class="fd-url mono">https://your-app.com</div>
+        </div>
+
+        <div class="fd-press">
+          <div class="fd-ram"></div>
+          <div class="fd-anvil">
+            <span class="fd-spark s1"></span>
+            <span class="fd-spark s2"></span>
+            <span class="fd-spark s3"></span>
+            <span class="fd-press-label mono">FORGE&nbsp;UNIT&nbsp;01</span>
+          </div>
+          <div class="fd-glow"></div>
+        </div>
+
+        <div class="fd-output">
+          <span class="fd-label mono">OUTPUT · ARTIFACTS</span>
+          <div class="fd-platforms">
+            <div class="fd-p" data-p="ios"><span class="fd-p__ico">iOS</span><span class="fd-p__ext mono">.ipa</span></div>
+            <div class="fd-p" data-p="android"><span class="fd-p__ico">droid</span><span class="fd-p__ext mono">.apk</span></div>
+            <div class="fd-p" data-p="windows"><span class="fd-p__ico">win</span><span class="fd-p__ext mono">.msi</span></div>
+            <div class="fd-p" data-p="macos"><span class="fd-p__ico">mac</span><span class="fd-p__ext mono">.dmg</span></div>
+            <div class="fd-p" data-p="linux"><span class="fd-p__ico">lnx</span><span class="fd-p__ext mono">.AppImage</span></div>
+          </div>
+        </div>
+
+        <svg class="fd-arrows" viewBox="0 0 100 100" preserveAspectRatio="none">
+          <path d="M50 12 V40" class="fd-arrow fd-arrow--down"/>
+          <path d="M50 62 V88 M50 88 H18 M50 88 H82" class="fd-arrow fd-arrow--fan"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero__marquee" aria-hidden="true">
+    <div class="marquee__track">
+      <span>Capacitor · iOS</span><span>·</span><span>Android Studio · Gradle</span><span>·</span><span>Tauri · Rust</span><span>·</span><span>electron-builder</span><span>·</span><span>appimagetool</span><span>·</span><span>notarization · codesign</span><span>·</span><span>PWA shell</span><span>·</span><span>jsDelivr CDN</span><span>·</span><span>ghproxy mirror</span><span>·</span>
+      <span>Capacitor · iOS</span><span>·</span><span>Android Studio · Gradle</span><span>·</span><span>Tauri · Rust</span><span>·</span><span>electron-builder</span><span>·</span><span>appimagetool</span><span>·</span><span>notarization · codesign</span><span>·</span><span>PWA shell</span><span>·</span><span>jsDelivr CDN</span><span>·</span><span>ghproxy mirror</span><span>·</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===== HOW IT WORKS ===== -->
+<section class="section how" id="how">
+  <header class="section__head">
+    <span class="section__idx mono">§ 01</span>
+    <h2 class="section__title">三步锻造 <span class="dim">/ how it works</span></h2>
+    <p class="section__sub">无需本地环境、无需证书折腾。全部在 GitHub 的 runner 上完成。</p>
+  </header>
+
+  <ol class="steps">
+    <li class="step">
+      <div class="step__num mono">01</div>
+      <h3 class="step__title">连接 GitHub</h3>
+      <p class="step__desc">一键 OAuth 授权，FORGE 自动创建 <span class="mono">forge-app/&lt;name&gt;</span> 仓库，注入 workflow、secrets 与图标资源。</p>
+      <div class="step__chip mono">oauth · create-repo · write-workflow</div>
+    </li>
+    <li class="step">
+      <div class="step__num mono">02</div>
+      <h3 class="step__title">配置应用</h3>
+      <p class="step__desc">在工坊里设置名称、图标、包名、窗口、权限、离线缓存与更新通道，实时预览多端外观。</p>
+      <div class="step__chip mono">visual-config · live-preview</div>
+    </li>
+    <li class="step">
+      <div class="step__num mono">03</div>
+      <h3 class="step__title">触发构建</h3>
+      <p class="step__desc">推送 <span class="mono">forge.yml</span>，Action 在矩阵 runner 上并行锻造五端产物，签名后发布到 Release，并经 CDN 加速分发。</p>
+      <div class="step__chip mono">matrix-build · sign · release · cdn</div>
+    </li>
+  </ol>
+</section>
+
+<!-- ===== STUDIO (centerpiece) ===== -->
+<section class="section studio" id="studio">
+  <header class="section__head">
+    <span class="section__idx mono">§ 02</span>
+    <h2 class="section__title">锻造工坊 <span class="dim">/ the studio</span></h2>
+    <p class="section__sub">所有配置实时驱动右侧多端预览。登录后即可写入仓库并触发真实构建。</p>
+  </header>
+
+  <div class="studio__bar mono">
+    <span class="sb-item"><i class="dot dot--lime"></i> STUDIO SESSION</span>
+    <span class="sb-sep"></span>
+    <span class="sb-item">repo: <b id="sbRepo">未连接</b></span>
+    <span class="sb-sep"></span>
+    <span class="sb-item">targets: <b id="sbTargets">5/5</b></span>
+    <span class="sb-spacer"></span>
+    <span class="sb-item sb-status" id="sbStatus">未连接 GitHub</span>
+    <a class="sb-link mono" id="sbRepoLink" href="#" target="_blank" rel="noopener" hidden>仓库 ↗</a>
+    <button class="sb-disconnect" id="disconnectBtn" hidden>断开</button>
+  </div>
+
+  <div class="studio__grid">
+
+    <!-- LEFT: app basics -->
+    <aside class="panel panel--config">
+      <div class="panel__head">
+        <h3 class="panel__title">应用基础</h3>
+        <span class="panel__tag mono">CONFIG · A</span>
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="appName">应用名称</label>
+        <input class="input" id="appName" type="text" value="我的锻造应用" maxlength="40" />
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="appUrl">网页地址 URL</label>
+        <input class="input input--mono" id="appUrl" type="text" value="https://example.com" />
+        <span class="field__hint mono">将作为 WebView 与 PWA shell 的入口</span>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label class="field__label" for="appId">包名 / Bundle ID</label>
+          <input class="input input--mono" id="appId" type="text" value="com.forge.myapp" />
+        </div>
+        <div class="field">
+          <label class="field__label" for="appVer">版本号</label>
+          <input class="input input--mono" id="appVer" type="text" value="1.0.0" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field__label">应用图标</label>
+        <div class="icon-drop" id="iconDrop">
+          <div class="icon-drop__preview" id="iconPreview">F</div>
+          <div class="icon-drop__meta">
+            <span class="icon-drop__title">点击或拖入图片</span>
+            <span class="icon-drop__hint mono">PNG/SVG · 1024×1024 推荐</span>
+          </div>
+          <input type="file" id="iconFile" accept="image/*" hidden />
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field__label">主题色</label>
+        <div class="swatches" id="swatches">
+          <button class="swatch is-active" data-color="#c6ff3a" style="--c:#c6ff3a" aria-label="酸橙绿"></button>
+          <button class="swatch" data-color="#ff7a3d" style="--c:#ff7a3d" aria-label="锻造橙"></button>
+          <button class="swatch" data-color="#5ac8fa" style="--c:#5ac8fa" aria-label="天蓝"></button>
+          <button class="swatch" data-color="#ff5d73" style="--c:#ff5d73" aria-label="绯红"></button>
+          <button class="swatch" data-color="#b794f4" style="--c:#b794f4" aria-label="紫"></button>
+          <button class="swatch" data-color="#f6e05e" style="--c:#f6e05e" aria-label="琥珀"></button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- CENTER: preview -->
+    <div class="panel panel--preview">
+      <div class="panel__head">
+        <h3 class="panel__title">多端实时预览</h3>
+        <div class="preview-tabs mono" id="previewTabs">
+          <button class="ptab is-active" data-device="phone">PHONE</button>
+          <button class="ptab" data-device="desktop">DESKTOP</button>
+        </div>
+      </div>
+
+      <div class="preview-stage" id="previewStage">
+        <!-- Phone -->
+        <div class="device device--phone is-active" id="devPhone">
+          <div class="phone">
+            <div class="phone__notch"></div>
+            <div class="phone__screen">
+              <div class="app-shell" id="phoneShell">
+                <div class="app-shell__bar">
+                  <span class="app-shell__title" id="phoneTitle">我的锻造应用</span>
+                  <span class="app-shell__dots"><i></i><i></i><i></i></span>
+                </div>
+                <div class="app-shell__web" id="phoneWeb">
+                  <div class="web-fake">
+                    <div class="web-fake__hero" style="background:var(--accent)"></div>
+                    <div class="web-fake__lines"><i></i><i></i><i></i><i></i></div>
+                    <div class="web-fake__btn"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="phone__home"></div>
+          </div>
+          <div class="device__cap mono">iOS · Android · 6.7"</div>
+        </div>
+
+        <!-- Desktop -->
+        <div class="device device--desktop" id="devDesktop">
+          <div class="laptop">
+            <div class="laptop__bar">
+              <span class="laptop__lights"><i></i><i></i><i></i></span>
+              <span class="laptop__title mono" id="deskTitle">我的锻造应用</span>
+            </div>
+            <div class="laptop__screen">
+              <div class="app-shell app-shell--desk" id="deskShell">
+                <div class="app-shell__web">
+                  <div class="web-fake web-fake--desk">
+                    <div class="web-fake__hero" style="background:var(--accent)"></div>
+                    <div class="web-fake__lines"><i></i><i></i><i></i><i></i><i></i></div>
+                    <div class="web-fake__btn"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="laptop__base"></div>
+          </div>
+          <div class="device__cap mono">Windows · macOS · Linux</div>
+        </div>
+      </div>
+
+      <div class="preview-meta mono">
+        <span>shell: <b id="metaShell">capacitor</b></span>
+        <span>·</span>
+        <span>offline: <b id="metaOffline">on</b></span>
+        <span>·</span>
+        <span>update: <b id="metaUpdate">auto</b></span>
+      </div>
+    </div>
+
+    <!-- RIGHT: advanced -->
+    <aside class="panel panel--advanced">
+      <div class="panel__head">
+        <h3 class="panel__title">高级与权限</h3>
+        <span class="panel__tag mono">CONFIG · B</span>
+      </div>
+
+      <div class="toggles" id="toggles">
+        <label class="toggle">
+          <span class="toggle__label">离线缓存 / Service Worker</span>
+          <input type="checkbox" checked data-meta="offline" data-val="on/off" />
+          <span class="toggle__track"><span class="toggle__thumb"></span></span>
+        </label>
+        <label class="toggle">
+          <span class="toggle__label">全屏沉浸模式</span>
+          <input type="checkbox" data-meta="fullscreen" />
+          <span class="toggle__track"><span class="toggle__thumb"></span></span>
+        </label>
+        <label class="toggle">
+          <span class="toggle__label">相机 / 麦克风</span>
+          <input type="checkbox" data-meta="cam" />
+          <span class="toggle__track"><span class="toggle__thumb"></span></span>
+        </label>
+        <label class="toggle">
+          <span class="toggle__label">地理位置</span>
+          <input type="checkbox" checked data-meta="geo" />
+          <span class="toggle__track"><span class="toggle__thumb"></span></span>
+        </label>
+        <label class="toggle">
+          <span class="toggle__label">推送通知</span>
+          <input type="checkbox" data-meta="push" />
+          <span class="toggle__track"><span class="toggle__thumb"></span></span>
+        </label>
+        <label class="toggle">
+          <span class="toggle__label">自动更新通道</span>
+          <input type="checkbox" checked data-meta="update" data-val="auto/manual" />
+          <span class="toggle__track"><span class="toggle__thumb"></span></span>
+        </label>
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="winW">桌面窗口尺寸</label>
+        <div class="range-row">
+          <input class="input input--mono input--sm" id="winW" type="number" value="1280" />
+          <span class="dim mono">×</span>
+          <input class="input input--mono input--sm" id="winH" type="number" value="800" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="orientSel">移动端方向</label>
+        <div class="seg" id="orientSel">
+          <button class="seg__btn is-active" data-val="portrait">竖屏</button>
+          <button class="seg__btn" data-val="landscape">横屏</button>
+          <button class="seg__btn" data-val="both">自适应</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="shellSel">底层壳引擎</label>
+        <div class="seg" id="shellSel">
+          <button class="seg__btn is-active" data-val="capacitor" data-shell="capacitor">Capacitor</button>
+          <button class="seg__btn" data-val="tauri" data-shell="tauri">Tauri</button>
+          <button class="seg__btn" data-val="pwa" data-shell="pwa">PWA</button>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Target selector + build -->
+  <div class="targets">
+    <div class="targets__label mono">构建目标矩阵 · BUILD MATRIX</div>
+    <div class="targets__grid" id="targetsGrid">
+      <button class="target is-on" data-p="ios">
+        <span class="target__ico">iOS</span>
+        <span class="target__name">iPhone / iPad</span>
+        <span class="target__ext mono">.ipa</span>
+        <span class="target__check">✓</span>
+      </button>
+      <button class="target is-on" data-p="android">
+        <span class="target__ico">Android</span>
+        <span class="target__name">手机 / 平板</span>
+        <span class="target__ext mono">.apk / .aab</span>
+        <span class="target__check">✓</span>
+      </button>
+      <button class="target is-on" data-p="windows">
+        <span class="target__ico">Windows</span>
+        <span class="target__name">x64 / arm64</span>
+        <span class="target__ext mono">.msi / .exe</span>
+        <span class="target__check">✓</span>
+      </button>
+      <button class="target is-on" data-p="macos">
+        <span class="target__ico">macOS</span>
+        <span class="target__name">Intel / Apple Silicon</span>
+        <span class="target__ext mono">.dmg / .pkg</span>
+        <span class="target__check">✓</span>
+      </button>
+      <button class="target is-on" data-p="linux">
+        <span class="target__ico">Linux</span>
+        <span class="target__name">deb / rpm / AppImage</span>
+        <span class="target__ext mono">.AppImage</span>
+        <span class="target__check">✓</span>
+      </button>
+    </div>
+
+    <div class="targets__action">
+      <div class="build-summary mono">
+        <span>即将锻造 <b id="sumCount">5</b> 个产物</span>
+        <span class="bs-sep"></span>
+        <span>预计 runner 用时 <b>~6m40s</b></span>
+        <span class="bs-sep"></span>
+        <span>分发 <b>CDN+镜像</b></span>
+      </div>
+      <button class="btn btn--forge" id="buildBtn" disabled>
+        <span class="btn__spark"></span>
+        <span class="btn__label">触发 GitHub Action 构建</span>
+        <span class="btn__arrow">⟶</span>
+      </button>
+    </div>
+    <p class="targets__note mono" id="buildNote">请先使用 GitHub 登录以解锁构建 · 登录后自动建仓并写入 forge.yml</p>
+  </div>
+</section>
+
+<!-- ===== PLATFORMS ===== -->
+<section class="section platforms" id="platforms">
+  <header class="section__head">
+    <span class="section__idx mono">§ 03</span>
+    <h2 class="section__title">五端产物 <span class="dim">/ platforms</span></h2>
+    <p class="section__sub">同一次 Action 构建，矩阵并行产出全部端。</p>
+  </header>
+
+  <div class="plat-grid">
+    <article class="plat" data-p="ios">
+      <div class="plat__top"><span class="plat__ico">iOS</span><span class="plat__ext mono">.ipa</span></div>
+      <h3 class="plat__title">Apple iOS / iPadOS</h3>
+      <p class="plat__desc">基于 Capacitor + Xcode 云构建，支持 TestFlight 分发与 Ad-Hoc 签名。</p>
+      <ul class="plat__tags mono"><li>swift</li><li>webkit</li><li>testflight</li></ul>
+    </article>
+    <article class="plat" data-p="android">
+      <div class="plat__top"><span class="plat__ico">droid</span><span class="plat__ext mono">.apk</span></div>
+      <h3 class="plat__title">Android</h3>
+      <p class="plat__desc">Gradle 构建 APK / AAB，可注入签名密钥并上传 Play Console。</p>
+      <ul class="plat__tags mono"><li>kotlin</li><li>webview</li><li>play</li></ul>
+    </article>
+    <article class="plat" data-p="windows">
+      <div class="plat__top"><span class="plat__ico">win</span><span class="plat__ext mono">.msi</span></div>
+      <h3 class="plat__title">Windows</h3>
+      <p class="plat__desc">Tauri / Electron 双引擎可选，输出 MSI 与 NSIS 安装包，含自动更新。</p>
+      <ul class="plat__tags mono"><li>rust</li><li>msi</li><li>winget</li></ul>
+    </article>
+    <article class="plat" data-p="macos">
+      <div class="plat__top"><span class="plat__ico">mac</span><span class="plat__ext mono">.dmg</span></div>
+      <h3 class="plat__title">macOS</h3>
+      <p class="plat__desc">通用二进制 (Intel + Apple Silicon)，自动公证 (notarize) 与代码签名。</p>
+      <ul class="plat__tags mono"><li>universal</li><li>notarize</li><li>dmg</li></ul>
+    </article>
+    <article class="plat" data-p="linux">
+      <div class="plat__top"><span class="plat__ico">lnx</span><span class="plat__ext mono">.AppImage</span></div>
+      <h3 class="plat__title">Linux</h3>
+      <p class="plat__desc">一次构建同时输出 .deb / .rpm / .AppImage，覆盖主流发行版。</p>
+      <ul class="plat__tags mono"><li>deb</li><li>rpm</li><li>appimage</li></ul>
+    </article>
+    <article class="plat plat--more">
+      <div class="plat__top"><span class="plat__ico">+</span></div>
+      <h3 class="plat__title">更多端可扩展</h3>
+      <p class="plat__desc">通过自定义 workflow job，可接入 Chrome 扩展、HarmonyOS、嵌入式 WebUI 等。</p>
+      <ul class="plat__tags mono"><li>extensible</li><li>custom-job</li></ul>
+    </article>
+  </div>
+</section>
+
+<!-- ===== SPEED ===== -->
+<section class="section speed" id="speed">
+  <header class="section__head">
+    <span class="section__idx mono">§ 04</span>
+    <h2 class="section__title">全球加速 <span class="dim">/ acceleration</span></h2>
+    <p class="section__sub">FORGE 内置 GitHub 访问与产物下载加速，让国内构建与分发同样顺畅。</p>
+  </header>
+
+  <div class="speed__grid">
+    <div class="speed__col">
+      <h3 class="speed__h">访问加速 · clone / raw / api</h3>
+      <p class="speed__p">Runner 自动选择最优镜像（ghproxy / gitclone / FastGit），对 <span class="mono">git clone</span>、<span class="mono">raw.githubusercontent.com</span> 与 API 请求进行透明代理，构建依赖拉取提速 5–20×。</p>
+      <ul class="speed__list mono">
+        <li><span class="sl-key">clone</span><span class="sl-val">gitclone.com 镜像</span></li>
+        <li><span class="sl-key">raw</span><span class="sl-val">ghproxy.com 代理</span></li>
+        <li><span class="sl-key">api</span><span class="sl-val">就近网关 + 重试</span></li>
+        <li><span class="sl-key">release</span><span class="sl-val">jsDelivr CDN 回源</span></li>
+      </ul>
+
+      <div class="region">
+        <span class="region__label mono">镜像区域</span>
+        <div class="seg" id="regionSel">
+          <button class="seg__btn is-active" data-val="cn">中国</button>
+          <button class="seg__btn" data-val="hk">香港</button>
+          <button class="seg__btn" data-val="global">全球</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="speed__col">
+      <h3 class="speed__h">下载加速 · release assets</h3>
+      <p class="speed__p">构建产物发布到 Release 后，自动生成 jsDelivr / 自建 CDN 的加速链接，安装包下载不再被墙。</p>
+
+      <div class="speedtest">
+        <div class="speedtest__head mono">
+          <span>速度对比 · 120MB 产物</span>
+          <button class="speedtest__run" id="speedRun">▶ 重新测速</button>
+        </div>
+        <div class="bar-row">
+          <span class="bar-row__label mono">直连 GitHub</span>
+          <div class="bar"><div class="bar__fill bar__fill--slow" id="barSlow" style="width:8%"></div></div>
+          <span class="bar-row__val mono" id="valSlow">0.4 MB/s</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-row__label mono">FORGE 加速</span>
+          <div class="bar"><div class="bar__fill bar__fill--fast" id="barFast" style="width:8%"></div></div>
+          <span class="bar-row__val mono" id="valFast">0.4 MB/s</span>
+        </div>
+        <div class="speedtest__note mono" id="speedNote">点击「重新测速」模拟对比</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PIPELINE ===== -->
+<section class="section pipeline" id="pipeline">
+  <header class="section__head">
+    <span class="section__idx mono">§ 05</span>
+    <h2 class="section__title">Action 流水线 <span class="dim">/ pipeline</span></h2>
+    <p class="section__sub">由 <span class="mono">forge.yml</span> 编排的一次完整构建。</p>
+  </header>
+
+  <div class="pipeline__flow">
+    <div class="pstep"><span class="pstep__num mono">01</span><span class="pstep__name">checkout</span><span class="pstep__desc mono">拉取仓库 + 镜像加速</span></div>
+    <div class="pstep"><span class="pstep__num mono">02</span><span class="pstep__name">setup</span><span class="pstep__desc mono">node / rust / jdk / sdk</span></div>
+    <div class="pstep"><span class="pstep__num mono">03</span><span class="pstep__name">webview</span><span class="pstep__desc mono">注入配置与图标</span></div>
+    <div class="pstep pstep--fork"><span class="pstep__num mono">04</span><span class="pstep__name">matrix</span><span class="pstep__desc mono">5 端并行锻造</span></div>
+    <div class="pstep"><span class="pstep__num mono">05</span><span class="pstep__name">sign</span><span class="pstep__desc mono">签名 / 公证</span></div>
+    <div class="pstep"><span class="pstep__num mono">06</span><span class="pstep__name">release</span><span class="pstep__desc mono">发布 + CDN 加速</span></div>
+  </div>
+
+  <div class="yaml-card">
+    <div class="yaml-card__bar mono">
+      <span class="yl-dot"></span><span class="yl-dot"></span><span class="yl-dot"></span>
+      <span class="yaml-card__name">.github/workflows/forge.yml</span>
+    </div>
+<pre class="yaml"><code><span class="y-key">name</span>: FORGE build
+<span class="y-key">on</span>: { <span class="y-key">push</span>: { <span class="y-key">branches</span>: [<span class="y-str">main</span>] } }
+<span class="y-key">jobs</span>:
+  <span class="y-key">forge</span>:
+    <span class="y-key">strategy</span>:
+      <span class="y-key">matrix</span>:
+        <span class="y-key">target</span>: [<span class="y-str">ios</span>, <span class="y-str">android</span>, <span class="y-str">windows</span>, <span class="y-str">macos</span>, <span class="y-str">linux</span>]
+    <span class="y-key">steps</span>:
+      - <span class="y-key">uses</span>: <span class="y-str">actions/checkout@v4</span>
+      - <span class="y-key">uses</span>: <span class="y-str">forge-app/setup@v2</span>            <span class="y-cmt"># 注入镜像加速</span>
+      - <span class="y-key">run</span>: <span class="y-str">forge build --target ${{ matrix.target }}</span>
+      - <span class="y-key">uses</span>: <span class="y-str">forge-app/sign@v2</span>             <span class="y-cmt"># 签名 / 公证</span>
+      - <span class="y-key">uses</span>: <span class="y-str">forge-app/release@v2</span>           <span class="y-cmt"># 发布 + CDN 分发</span></code></pre>
+  </div>
+</section>
+
+<!-- ===== FAQ ===== -->
+<section class="section faq" id="faq">
+  <header class="section__head">
+    <span class="section__idx mono">§ 06</span>
+    <h2 class="section__title">常见问题 <span class="dim">/ faq</span></h2>
+  </header>
+  <div class="faq__list">
+    <details class="faq__item" open>
+      <summary>需要自备服务器吗？<span class="faq__icon">+</span></summary>
+      <p>不需要。全部构建在 GitHub Actions 提供的免费 runner 上完成，FORGE 只负责配置与编排。私有仓库每月有 2000 分钟免费额度。</p>
+    </details>
+    <details class="faq__item">
+      <summary>iOS 签名怎么解决？<span class="faq__icon">+</span></summary>
+      <p>将 Apple Developer 证书与描述文件作为 GitHub Secrets 注入，FORGE 在云端完成 codesign 并可直传 TestFlight。也支持免签名的 PWA 与企业签名方案。</p>
+    </details>
+    <details class="faq__item">
+      <summary>国内拉取 GitHub 太慢怎么办？<span class="faq__icon">+</span></summary>
+      <p>FORGE 在 setup 步骤自动启用镜像加速，对 clone / raw / api 透明代理；产物发布后通过 jsDelivr CDN 与自建镜像分发，下载提速 5–20 倍。</p>
+    </details>
+    <details class="faq__item">
+      <summary>支持离线运行吗？<span class="faq__icon">+</span></summary>
+      <p>支持。开启「离线缓存」后，FORGE 会注入 Service Worker 与资源预缓存，断网时仍可启动应用外壳。</p>
+    </details>
+  </div>
+</section>
+
+<!-- ===== CTA ===== -->
+<section class="cta">
+  <div class="cta__inner">
+    <div class="cta__coord mono">END OF BLUEPRINT · INITIATE FORGE</div>
+    <h2 class="cta__title">现在就把你的网页<span class="title-accent">锻造</span>成应用</h2>
+    <p class="cta__sub">一次登录，五端产物，全球加速。</p>
+    <button class="btn btn--primary btn--lg" id="ctaLoginBtn">
+      <span class="btn__label">使用 GitHub 登录</span>
+      <span class="btn__arrow">→</span>
+    </button>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot">
+  <div class="foot__grid">
+    <div class="foot__brand">
+      <span class="brand-mark brand-mark--sm" aria-hidden="true">
+        <svg viewBox="0 0 32 32" width="22" height="22"><path d="M4 6h11l9 20h-6l-2.2-5H8.6L7 26H1L4 6zm6.2 4L8 16h6l-1.8-6h-2z" fill="currentColor"/></svg>
+      </span>
+      <span class="brand-text">FORGE</span>
+      <p class="foot__tag mono">网页锻造工坊 · 由 GitHub Action 驱动</p>
+    </div>
+    <div class="foot__col">
+      <h4 class="foot__h mono">产品</h4>
+      <a href="#studio">工坊</a><a href="#platforms">多端</a><a href="#speed">加速</a><a href="#pipeline">流水线</a>
+    </div>
+    <div class="foot__col">
+      <h4 class="foot__h mono">资源</h4>
+      <a href="#">文档</a><a href="#">模板仓库</a><a href="#">更新日志</a><a href="#">状态</a>
+    </div>
+    <div class="foot__col">
+      <h4 class="foot__h mono">开源</h4>
+      <a href="#">GitHub</a><a href="#">License · MIT</a><a href="#">贡献指南</a><a href="#">行为准则</a>
+    </div>
+  </div>
+  <div class="foot__bar mono">
+    <span>© 2026 FORGE//OS</span>
+    <span class="fb-sep"></span>
+    <span>本页为概念演示 UI · 非生产服务</span>
+    <span class="fb-spacer"></span>
+    <span>made with · blueprint &amp; forge-fire</span>
+  </div>
+</footer>
+
+<!-- ===== Login modal (PAT) ===== -->
+<div class="modal" id="loginModal" aria-hidden="true">
+  <div class="modal__backdrop" data-close></div>
+  <div class="modal__card" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+    <button class="modal__close" data-close aria-label="关闭">×</button>
+    <div class="modal__head">
+      <span class="modal__eyebrow mono">PAT · GITHUB TOKEN</span>
+      <h3 class="modal__title" id="loginTitle">使用密钥连接 GitHub</h3>
+      <p class="modal__sub">输入你的 GitHub Personal Access Token，FORGE 将调用 GitHub API 验证身份、创建仓库并写入 Action 工作流。</p>
+    </div>
+
+    <div class="token-box">
+      <div class="field" style="margin-bottom:14px">
+        <label class="field__label" for="ghToken">Personal Access Token</label>
+        <div class="token-input-row">
+          <input class="input input--mono" id="ghToken" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxx" autocomplete="off" spellcheck="false" />
+          <button class="token-toggle" id="tokenToggle" type="button" aria-label="显示/隐藏密钥">
+            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M12 4.5C7 4.5 2.7 7.6 1 12c1.7 4.4 6 7.5 11 7.5s9.3-3.1 11-7.5C21.3 7.6 17 4.5 12 4.5zm0 12.5a5 5 0 110-10 5 5 0 010 10zm0-8a3 3 0 100 6 3 3 0 000-6z"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="field" style="margin-bottom:14px">
+        <label class="field__label" for="repoName">仓库名称</label>
+        <input class="input input--mono" id="repoName" type="text" value="forge-app" spellcheck="false" />
+        <span class="field__hint mono" id="repoHint">将创建于 &lt;你的用户名&gt;/forge-app</span>
+      </div>
+
+      <div class="token-help">
+        <span class="mono">所需权限: <b>repo</b> · <b>workflow</b></span>
+        <a class="token-link mono" href="https://github.com/settings/tokens/new?scopes=repo,workflow&description=FORGE%20%E9%94%BB%E9%80%A0%E5%B7%A5%E5%9D%8A" target="_blank" rel="noopener">→ 前往创建 Token ↗</a>
+      </div>
+      <div class="token-error mono" id="tokenError" role="alert" hidden></div>
+    </div>
+
+    <ul class="scopes mono">
+      <li><span class="scope-dot"></span> 读取用户资料 (GET /user)</li>
+      <li><span class="scope-dot"></span> 创建仓库 (POST /user/repos)</li>
+      <li><span class="scope-dot"></span> 写入文件与 workflow (PUT /contents)</li>
+      <li><span class="scope-dot"></span> 触发构建 (push 触发 + 轮询 runs)</li>
+    </ul>
+
+    <div class="login-flow" id="loginFlow">
+      <div class="lf-step" data-step="0"><span class="lf-num">01</span><span class="lf-name">验证 Token · 读取用户</span><span class="lf-state mono">待开始</span></div>
+      <div class="lf-step" data-step="1"><span class="lf-num">02</span><span class="lf-name">创建仓库</span><span class="lf-state mono">—</span></div>
+      <div class="lf-step" data-step="2"><span class="lf-num">03</span><span class="lf-name">写入 forge.yml 工作流</span><span class="lf-state mono">—</span></div>
+      <div class="lf-step" data-step="3"><span class="lf-num">04</span><span class="lf-name">写入 forge.config.json</span><span class="lf-state mono">—</span></div>
+      <div class="lf-step" data-step="4"><span class="lf-num">05</span><span class="lf-name">完成，进入工坊</span><span class="lf-state mono">—</span></div>
+    </div>
+
+    <button class="btn btn--github btn--block" id="loginStart">
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 .5C5.7.5.5 5.7.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.2.8-.5v-1.7c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.7 1.3 3.4 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.3c0 .3.2.6.8.5 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.7 18.3.5 12 .5z"/></svg>
+      <span>验证并连接</span>
+    </button>
+    <p class="modal__fine mono">密钥仅保存在当前标签页会话 · 关闭标签即清除 · 不会上传到任何第三方服务器</p>
+  </div>
+</div>
+
+<!-- ===== Build terminal ===== -->
+<div class="terminal-overlay" id="buildOverlay" aria-hidden="true">
+  <div class="terminal">
+    <div class="terminal__bar">
+      <span class="yl-dot"></span><span class="yl-dot"></span><span class="yl-dot"></span>
+      <span class="terminal__name mono">forge@github-actions · build #1</span>
+      <button class="terminal__close" id="termClose" aria-label="关闭">×</button>
+    </div>
+    <div class="terminal__body mono" id="termBody"></div>
+    <div class="terminal__foot mono">
+      <span id="termStatus">就绪</span>
+      <span class="tf-spacer"></span>
+      <a class="tf-link" id="termReleases" href="#" hidden>查看 Release ↓</a>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
